@@ -1,0 +1,57 @@
+# CODE : 
+
+import os
+from tkinter import Label,Tk
+window = Tk()
+window.title("Ping Pong")
+window.geometry('600x700')
+
+label = Label(window, font = ("Arial" ,10))
+label.grid(column=0, row=100)
+
+# opening ip_list.txt file
+with open("C:\\Users\\k786j\\js .html\\ip_list.txt") as file :
+    bucket = file.read()
+    bucket = bucket.splitlines()
+    print(bucket)
+
+# pinging each ip address which is written in ip_list file of notepad
+
+for ip in bucket :
+    res = os.popen(f"ping {ip}").read()
+    if ("unreachable" in res) or ("Request timed out" in res) :
+        print(res)
+        f = open("C:\\Users\\k786j\\js .html\\output.txt","a")
+        f.write(str(ip)  +  '\t' + '\t' + 'Alert!' + ' not pinging properly' + '\n')
+        f.close()
+
+    elif f"Reply from {ip}" in res:
+        print(res)
+        f = open("C:\\Users\\k786j\\js .html\\output.txt","a")
+        f.write(str(ip)  + '\t' + '\t' + 'Yes' + '\n')
+        f.close()
+    elif f"could not find host {ip}" in res:
+        print(res)
+        f = open("C:\\Users\\k786j\\js .html\\output.txt","a")
+        f.write(str(ip)  + '\t' + '\t' + 'This is not a host!' + '\n')
+        f.close()
+
+    else:
+        print(res)
+        f = open("C:\\Users\\k786\\js .html\\output.txt","a")
+        f.write(str(ip) +   '\t'   + 'Great!' + '\t' +   ' pinging' + '\n')
+        f.close()
+
+#  Opening the output file
+with open("C:\\Users\\k786j\\js .html\\output.txt") as file:
+    output = file.read()
+    print(output)
+
+# Displaying the result of the GUI
+label.configure(text=output)
+
+# Deleting content of the output.txt file 
+with open("C:\\Users\\k786j\\js .html\\output.txt", "w") as file :
+    pass
+window.mainloop()
+

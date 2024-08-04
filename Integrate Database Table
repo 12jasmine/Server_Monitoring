@@ -1,0 +1,187 @@
+# Code
+
+import os
+
+import oracledb
+
+import socket
+
+import subprocess
+
+import time
+
+import winsound
+
+
+
+def check_ping(ip):
+
+    """Checks if an IP address is reachable using ping.
+
+    """
+
+
+
+    try:
+
+        socket.inet_aton(ip)  
+
+        response = os.popen(f"ping -c 1 {ip}").read()
+
+        return "Request timed out" not in response
+
+    except socket.error:
+
+        return False 
+
+def insert_into_oracle(ip, is_reachable, cursor, s_no):
+
+    """Inserts ping results into the Oracle database.
+
+    """
+
+
+
+    sql = "INSERT INTO datacenter_ipcheck (S_no, ip, reachable) VALUES (:1, :2, :3)"
+
+    cursor.execute(sql, (s_no, ip, is_reachable))
+
+
+
+def fetch_ips_from_oracle(cursor):
+
+    """Fetches a list of IP addresses from the datacenter_ipcheck table.
+
+
+
+    Args:
+
+        cursor (oracledb.cursor): The database cursor.
+
+
+
+    Returns:
+
+        list: A list of IP addresses from the table.
+
+    """
+
+
+
+    sql = "SELECT ip FROM datacenter_ipcheck"
+
+    cursor.execute(sql)
+
+    return [row[0] for row in cursor.fetchall()]
+
+
+
+def ping_ip_with_oracle(cursor):
+
+    """Fetches IPs from the database, pings them individually, inserts results, and plays sound for unreachable IPs.
+
+    """
+
+
+
+    try:
+
+        connection = oracledb.connect('system/Tanutanutanu31@localhost:1521/XE')
+
+        cursor = connection.cursor()
+
+        s_no = 1
+
+
+
+        ip_list = fetch_ips_from_oracle(cursor) 
+
+
+
+        for ip in ip_list:
+
+            reachable = check_ping(ip)
+
+            if reachable:
+
+                print(f"{ip} is reachable.")
+
+            else:
+
+                print(f"{ip} is not reachable.")
+
+                winsound.Beep(frequency=1000, duration=500)
+
+            print("\n Press 'c' to exit, 'Enter' to continue processing, 's' to connect with SQL*Plus:")
+
+            user_input = input().lower()  
+
+            if user_input == 'c':
+
+                break
+
+            elif user_input == 's':
+
+                subprocess.run(["sqlplus", "Tanutanutanu31@localhost:1521/XE"])
+
+                break  # Exit loop after launching SQL*Plus
+
+            else:
+
+                continue  
+
+            insert_into_oracle(ip, reachable, cursor, s_no)
+
+            s_no += 1
+
+
+
+        connection.commit()
+
+        print("Ping results successfully stored in your database.")
+
+
+
+    except oracledb.DatabaseError as e:
+
+        print (f"Database error occurred: {e}")
+
+    except Exception as e:
+
+        print(f"Error: {e}")
+
+    finally:
+
+        # Close cursor and connection
+
+        if cursor:
+
+            cursor.close()
+
+        if connection:
+
+            connection.close()
+
+
+
+def play_sound():
+
+    """Plays a system sound to indicate an unreachable IP."""
+
+    winsound.Beep(frequency=1000, duration=500)
+
+
+
+def main():
+
+    while True:
+
+        ping_ip_with_oracle(cursor=None)  
+
+        break  
+
+if __name__ == "_main_":
+
+    
+
+    main()

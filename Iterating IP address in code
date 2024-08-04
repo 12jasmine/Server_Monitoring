@@ -1,0 +1,81 @@
+# Code:
+
+import subprocess
+
+import time
+
+import os
+
+
+
+def ping_ip(ip_address):
+
+    """Pings the given IP address and returns True if successful, False otherwise."""
+
+    try:
+
+        ping_result = subprocess.run(["ping", "-c", "1", ip_address], capture_output=True, timeout=2)
+
+        return ping_result.returncode == 0
+
+    except subprocess.TimeoutExpired:
+
+        print(f"Ping to {ip_address} timed out")
+
+        return False
+
+    except Exception as e:
+
+        print(f"Error pinging {ip_address}: {e}")
+
+        return False
+
+
+
+def read_ip_addresses_from_file(file_path):
+
+    """Reads IP addresses from a text file."""
+
+    ip_addresses = []
+
+    with open(file_path, 'r') as f:
+
+        for line in f:
+
+            ip_addresses.append(line.strip())
+
+    return ip_addresses
+
+
+
+def main():
+
+    file_path = "ip_addresses.txt"  
+
+
+
+    while True:
+
+        ip_addresses = read_ip_addresses_from_file ("C:\\Users\stanu\\ip addresses.txt")
+
+        print("Ping results:")
+
+        for ip in ip_addresses:
+
+            if ping_ip(ip):
+
+                print(f"{ip}: ok")
+
+            else:
+
+                print(f"{ip}: ip is not pinging")
+
+        print("\n" * 2)  
+
+        time.sleep(10)
+
+
+
+if __name__ == "_main_":
+
+    main()

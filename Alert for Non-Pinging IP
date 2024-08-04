@@ -1,0 +1,67 @@
+# Code
+
+def ping_ip(ip_address):
+
+    """Pings an IP address and returns True if successful, False otherwise."""
+
+    try:
+
+        subprocess.check_output(["ping", "-c", "1", "-w", "1", ip_address], stderr= subprocess.STDOUT, timeout=1)
+
+        return True
+
+    except subprocess.CalledProcessError:
+
+        return False
+
+
+
+def play_sound():
+
+    """Plays a system sound to indicate an unreachable IP."""
+
+    winsound.Beep(frequency=1000, duration=500)
+
+
+
+def main():
+
+    ip_addresses = ["192.168.1.75", "192.168.1.76", "192.168.1.1", "8.8.8.8", "4.2.2.1", "192.168.0.1", "8.8.4.4", "1.1.1.1", "1.0.0.1", "2001:db8::1"]
+
+    index = 0
+
+
+
+    while True:
+
+        ip = ip_addresses[index]
+
+        if ping_ip(ip):
+
+            print(f"{ip}: ok")
+
+        else:
+
+            print(f"{ip}: ip is not pinging")
+
+            play_sound()
+
+            time.sleep(1) 
+
+
+
+        user_input = input("Press 'c' to exit, any other key to continue: ")
+
+        if user_input == 'c':
+
+            break
+
+        else:
+
+            index = (index + 1) % len(ip_addresses)
+
+
+
+if __name__ == "__main__":
+
+    main()
